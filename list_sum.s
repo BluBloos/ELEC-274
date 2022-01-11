@@ -4,21 +4,21 @@
 # symbol for linking.
 .global _start  
 
-.org 0x0000
+.org 0x00000
 
 _start:
-    ldw r2, N(r0) # what is this instruction?
-    movi r3, LIST #??
-    movi r4, 0 # presume this is a move integer into r4 register
+    ldw r2, N(r0) # loads 32-bit word from memory address at byte_offset r0 from label N
+    movi r3, LIST # moves a 16-bit signed immediate val into register and sign-extends to 32 bits
+    movi r4, 0
  LOOP:
-    ldw r5, 0(r3)
-    add r4, r4, r5 # add r4 and r5 and store in r4?
-    addi r3, r3, 4 # add with integer literal?
-    subi r2, r2, 1
-    bgt r2, r0, LOOP # is this like a "branch" statement?
-    stw r4, SUM(r0) # okay so this is like store wide?
+    ldw r5, 0(r3) # load current val from pointer to list in 43
+    add r4, r4, r5 # add r4 and r5 and store in r4 (add current elem to sum)
+    addi r3, r3, 4 # increment list pointer in r3 (4 bytes).
+    subi r2, r2, 1 # decrement the 'i' var (begins at N)
+    bgt r2, r0, LOOP # branch to loop top so long as i var is greater than 0 (still elements in list)
+    stw r4, SUM(r0) # store the value of r4 in SUM memory address (because offset of zero).
 _end:
-    br _end # break statement? or like "branch return"?
+    br _end # infinite lopp
 
 # okay so .org directive makes things exist in machine code
 # output at a specific location in the .exe
