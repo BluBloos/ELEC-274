@@ -43,3 +43,102 @@ PrintString:
     ldw ra, 4(sp)
     addi sp, sp, 8
     ret
+
+
+PrintHexChar:
+    subi sp, sp, 12
+    stw r2, 0(sp)
+    stw r3, 4(sp)
+    stw ra, 8(sp)
+
+    #r2 = 4 bit hex character in integer format.
+    PrintHexChar_if:
+    movi r3, 10
+    blt r2, r3, PrintHexChar_else
+    subi r2, r2, 10
+    addi r2, r2, 'A'
+    br PrintHexChar_endif
+    PrintHexChar_else:
+    addi r2, r2, '0'
+    PrintHexChar_endif:
+    call PrintChar
+    
+    ldw r2, 0(sp)
+    ldw r3, 4(sp)
+    ldw ra, 8(sp)
+    addi sp, sp, 12
+    ret
+
+# This will print just 1 hexadecimal digit.
+# void PrintHexByte(char n)
+PrintHexByte:
+    # r2 = n
+    subi sp, sp, 12
+    stw ra, 0(sp)
+    stw r2, 4(sp)
+    stw r3, 8(sp)
+
+    mov r3, r2 # for safe keeping.
+
+    ####### First char (MSB) ######
+    andi r2, r3, 0xF0
+    srli r2, r2, 4
+    call PrintHexChar 
+    ####### First char (MSB) ######
+
+    ####### Second char (LSB) #######
+    andi r2, r3, 0x0F
+    call PrintHexChar
+    ####### Second char (LSB) #######
+
+    ldw ra, 0(sp)
+    ldw r2, 4(sp)
+    ldw r3, 8(sp)
+    addi sp, sp, 12
+    ret
+
+# This will print 8 hexadecimal digits representing the value of a 32-bit word. 
+# It will also pre-append a 0x in front of the hexadecimal value, because yknow, thats fun.
+# void PrintHexWord(int32 val)
+PrintHexWord:
+    # r2 = val
+    subi sp, sp, 12
+    stw ra, 0(sp)
+    stw r2, 4(sp)
+    stw r3, 8(sp)
+
+    # NOTE(Noah): We print the bytes MSB to LSB.
+    # Hexadecimal is cool like that.
+    mov r3, r2 # for safe keeping.
+
+    movi r2, '0'
+    call PrintChar
+    movi r2, 'x'
+    call PrintChar
+
+    # First byte
+    andhi r2, r3, 0xFF00
+    srli r2, r2, 24
+    call PrintHexByte
+
+    # second byte
+    andhi r2, r3, 0x00FF
+    srli r2, r2, 16
+    call PrintHexByte
+
+    # third byte
+    andi r2, r3, 0x0000FF00
+    srli r2, r2, 8
+    call PrintHexByte
+
+    # fourth byte
+    andi r2, r3, 0xFF
+    call PrintHexByte
+
+    ldw ra, 0(sp)
+    ldw r2, 4(sp)
+    ldw r3, 8(sp)
+    addi sp, sp, 12
+    ret
+
+
