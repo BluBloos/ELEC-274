@@ -7,6 +7,8 @@ Use web assembler -> https://www.01xz.net/wiki/Main_Page
 
 ## Steps for Building
 
+NOTE: The build system is currently "in the works".
+
 To build the CPU system as defined by the VHDL code, this repo is setup to use the GHDL project. The repo for this project has been added as a submodule.
 
 Run
