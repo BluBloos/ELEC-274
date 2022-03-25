@@ -8,16 +8,14 @@ _start:
     
     movi r2, init_msg
     call PrintString
-    xor r2, r2, r2 # set to zero
-    call PrintHexWord
-    movi r2, 0xA
-    call PrintChar
-    movia r2, 0xA5A5
-    call PrintHexWord
-    movi r2, 0xA
-    call PrintChar
-    movia r2, 0xFFFFFFFF
-    call PrintHexWord
+    
+    movi r2, name_msg
+    call PrintString
+
+    movi r2, list1 
+    movi r3, list2
+    ldw r4, n(r0) 
+    call LeftShiftListItems
 
 _end:
     br _end
@@ -165,5 +163,83 @@ PrintHexWord:
     addi sp, sp, 12
     ret
 
-.org 0x1000  
-init_msg: .asciz "Lab 4 Preparation\n"
+# LeftShiftListItems(ptr1, ptr2, num)
+LeftShiftListItems:
+    # r2 = ptr1
+    # r3 = ptr2
+    # r4 = num
+
+    subi sp, sp, 32
+    stw ra, 0(sp)
+    stw r2, 4(sp)
+    stw r3, 8(sp)
+    stw r4, 12(sp)
+    stw r5, 16(sp)
+    stw r6, 20(sp)
+    stw r7, 24(sp)
+    stw r8, 28(sp)
+
+    mov r5, r0 # count = 0
+    mov r6, r2 # ptr1 
+
+    LeftShiftListItems_for:
+
+    ldw r7, 0(r6) # r7 = ptr1[i]
+    addi r6, r6, 4 
+    mov r2, r7
+    call PrintHexWord
+    movi r2, ',' 
+    call PrintChar 
+    ldw r8, 0(r3) # r8 = ptr2[i]
+    addi r3, r3, 4
+    mov r2, r8
+    call PrintHexWord
+
+    # ptr1[i] = ptr1[i] << ptr2[i]
+    sll r7, r7, r8
+    stw r7, -4(r6)
+
+    movi r2, arrow_msg
+    call PrintString
+
+    mov r2, r7
+    call PrintHexWord
+
+    movi r2, 0xA
+    call PrintChar
+
+    LeftShiftListItems_if:
+    bge r7, r0, LeftShiftListItems_endif
+    addi r5, r5, 1
+    LeftShiftListItems_endif:
+
+    subi r4, r4, 1
+    bgt r4, r0, LeftShiftListItems_for
+    LeftShiftListItems_endfor:
+
+    mov r2, r5
+    call PrintHexWord
+
+    movi r2, LeftShiftListItems_msg
+    call PrintString
+
+    ldw ra, 0(sp)
+    ldw r2, 4(sp)
+    ldw r3, 8(sp)
+    ldw r4, 12(sp)
+    ldw r5, 16(sp)
+    ldw r6, 20(sp)
+    ldw r7, 24(sp)
+    ldw r8, 28(sp)
+    addi sp, sp, 32
+
+    ret 
+
+.org 0x1000
+n: .word 4
+list1: .word 0x332211, 0x665544, 0xFFEEDD, 0xCCBBAA
+list2: .word 4, 8, 12, 16
+init_msg: .asciz "ELEC 274 Lab 4\n"
+name_msg: .asciz "Noah Cabral, Anees Busari, Ahoura Radpey\n"
+LeftShiftListItems_msg: .asciz " items now negative\n"
+arrow_msg: .asciz " --> "
